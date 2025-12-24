@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  move-writer:
+    build: .
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_QUEUE: move.logged
+      FLUSH_SIZE: 1000
+      PARQUET_DIR: /data/parquet
+    volumes:
+      - ./data:/data/parquet
+    ports:
+      - "8000:8000"
