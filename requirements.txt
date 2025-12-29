@@ -2,3 +2,7 @@ fastapi
 uvicorn
 pika
 pyarrow
+
+dvc==3.48.0
+dvc-s3==3.2.0
+pandas
