@@ -27,7 +27,7 @@ dvc_manager = None
 if USE_DVC:
     try:
         dvc_manager = DVCManager(
-            workspace_dir="/workspace",
+            workspace_dir=DATASET_DIR,
             dataset_dir=DATASET_DIR,
             remote_name=DVC_REMOTE,
             minio_endpoint=MINIO_ENDPOINT,

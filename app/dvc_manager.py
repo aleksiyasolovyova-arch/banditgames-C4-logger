@@ -63,7 +63,7 @@ class DVCManager:
             logger.info("DVC already initialized")
         else:
             logger.info("Initializing DVC...")
-            success, output = self._run_command(["dvc", "init"])
+            success, output = self._run_command(["dvc", "init", "--no-scm"])
             if success:
                 logger.info(" DVC initialized")
             else:
@@ -123,23 +123,22 @@ class DVCManager:
         Returns:
             bool: True if successful
         """
-        # Convert to Path object
-        path = Path(file_path)
+        logger.info(f"Tracking file: {file_path}")
 
-        # If absolute path outside workspace, make it relative
-        if path.is_absolute():
-            try:
-                path = path.relative_to(self.workspace_dir)
-            except ValueError:
-                logger.error(f"File {file_path} is outside workspace {self.workspace_dir}")
-                return False
+        # Ensure we are adding the file relative to the workspace
+        # This prevents absolute path errors when DVC root is the same as dataset dir
+        try:
+            rel_path = os.path.relpath(file_path, self.workspace_dir)
+        except ValueError:
+            # Fallback if path cannot be made relative (should not happen with correct mounts)
+            rel_path = os.path.basename(file_path)
 
-        logger.info(f"Tracking file with DVC: {path}")
+        logger.info(f"Tracking relative path: {rel_path}")
 
-        success, output = self._run_command(["dvc", "add", str(path)])
+        success, output = self._run_command(["dvc", "add", rel_path])
 
         if success:
-            logger.info(f" File tracked: {path}")
+            logger.info(f" File tracked: {rel_path}")
             return True
         else:
             logger.error(f" Failed to track file: {output}")
